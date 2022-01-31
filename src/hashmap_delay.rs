@@ -7,8 +7,8 @@ use std::{
 };
 use tokio_util::time::delay_queue::{self, DelayQueue};
 
-/// The default delay for entries, in seconds. This is only used when [`insert`] is used to add
-/// entries. Specific times can be specified using [`insert_at`].
+/// The default delay for entries, in seconds. This is only used when [`HashMapDelay::insert`] is used to add
+/// entries. Specific times can be specified using [`HashMapDelay::insert_at`].
 const DEFAULT_DELAY: u64 = 30;
 
 
@@ -49,7 +49,7 @@ where
     K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
 {
     /// Creates a new instance of [`HashMapDelay`]. The `default_entry_timeout` parameter specifies
-    /// the default timeout for new entries inserted using the [`insert`] function.
+    /// the default timeout for new entries inserted using the [`HashMapDelay::insert`] function.
     pub fn new(default_entry_timeout: Duration) -> Self {
         HashMapDelay {
             entries: HashMap::new(),
@@ -59,7 +59,7 @@ where
     }
 
     /// Insert an entry into the mapping. Entries will expire after the `default_entry_timeout`,
-    /// specified when creating a [`HashMapDelay`] via [`new`].
+    /// specified when creating a [`HashMapDelay`] via [`HashMapDelay::new`].
     /// NOTE: This will panic if run outside of a tokio runtime.
     pub fn insert(&mut self, key: K, value: V) {
         self.insert_at(key, value, self.default_entry_timeout);
