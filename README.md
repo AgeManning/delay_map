@@ -13,7 +13,6 @@ Status]][Crates Link]
 
 [Documentation at docs.rs](https://docs.rs/delay_map)
 
-
 # Overview
 
 This crate contains two data structures, [`HashSetDelay`] and [`HashMapDelay`]. These
