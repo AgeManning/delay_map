@@ -1,7 +1,8 @@
 name: build
 
-on: pull_request
-
+on: 
+  push:
+    branches: [ master ]
 jobs:
   cargo-fmt:
     runs-on: ubuntu-latest
