@@ -2,6 +2,7 @@
 name = "delay_map"
 authors = ["Age Manning <Age@AgeManning.com>"]
 description = "HashMap collections whose entries expire after a given time"
+license = "Apache License 2.0"
 repository = "https://github.com/agemanning/delay_map"
 readme = "./README.md"
 keywords = ["collections", "hashmap", "hashset", "delay", "map", "delayqueue"]
