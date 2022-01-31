@@ -3,7 +3,7 @@ use std::{
     collections::HashMap,
     pin::Pin,
     task::{Context, Poll},
-    time::{Duration},
+    time::Duration,
 };
 use tokio_util::time::delay_queue::{self, DelayQueue};
 
@@ -11,11 +11,10 @@ use tokio_util::time::delay_queue::{self, DelayQueue};
 /// entries. Specific times can be specified using [`HashMapDelay::insert_at`].
 const DEFAULT_DELAY: u64 = 30;
 
-
 /// A data structure that behaves like a hashmap whose entries expire after a given amount of time.
 /// This implements [`Stream`] and should be polled for expired entries. Duplicate entires reset
 /// the expiration time.
-pub struct HashMapDelay<K, V:Unpin>
+pub struct HashMapDelay<K, V: Unpin>
 where
     K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
 {
@@ -32,10 +31,10 @@ struct MapEntry<V> {
     /// The expiration key for the entry.
     key: delay_queue::Key,
     /// The actual entry.
-    value: V
+    value: V,
 }
 
-impl<K,V: Unpin> Default for HashMapDelay<K,V>
+impl<K, V: Unpin> Default for HashMapDelay<K, V>
 where
     K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
 {
@@ -44,7 +43,7 @@ where
     }
 }
 
-impl<K,V:Unpin> HashMapDelay<K,V>
+impl<K, V: Unpin> HashMapDelay<K, V>
 where
     K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
 {
@@ -157,11 +156,11 @@ where
     }
 }
 
-impl<K,V:Unpin> Stream for HashMapDelay<K,V>
+impl<K, V: Unpin> Stream for HashMapDelay<K, V>
 where
     K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
 {
-    type Item = Result<(K,V), String>;
+    type Item = Result<(K, V), String>;
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         match self.expirations.poll_expired(cx) {
@@ -211,7 +210,7 @@ mod tests {
         let value = 10;
 
         let mut map = HashMapDelay::default();
-        map.insert(key,value);
+        map.insert(key, value);
 
         // Check the map contains the key
         assert!(map.contains_key(&key));
@@ -225,12 +224,17 @@ mod tests {
         assert!(map.contains_key(&key));
 
         // Make sure it expires correctly
-        match tokio::time::timeout_at(tokio::time::Instant::now() + Duration::from_millis(100), map.next()).await {
+        match tokio::time::timeout_at(
+            tokio::time::Instant::now() + Duration::from_millis(100),
+            map.next(),
+        )
+        .await
+        {
             Err(_) => panic!("Entry did not expire"),
-            Ok(Some(Ok((k,v)))) => {
+            Ok(Some(Ok((k, v)))) => {
                 assert_eq!(v, value);
                 assert_eq!(k, key);
-            },
+            }
             Ok(Some(_)) => panic!("Polling the map failed"),
             Ok(None) => panic!("Entry did not exist, stream terminated"),
         }
@@ -245,7 +249,7 @@ mod tests {
         let value = 10;
 
         let mut map = HashMapDelay::default();
-        map.insert(key,value);
+        map.insert(key, value);
 
         // Check the map contains the key
         assert!(map.contains_key(&key));
@@ -254,5 +258,4 @@ mod tests {
         assert!(!map.contains_key(&key));
         assert_eq!(map.expirations.len(), 0);
     }
-
 }
