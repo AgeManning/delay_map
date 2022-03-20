@@ -154,6 +154,11 @@ where
     pub fn values(&self) -> impl Iterator<Item = &V> {
         self.entries.values().map(|entry| &entry.value)
     }
+
+    /// Returns an interator referencing all items in the map.
+    pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> {
+        self.entries.iter().map(|(k, entry)| (k, &entry.value))
+    }
 }
 
 impl<K, V: Unpin> Stream for HashMapDelay<K, V>
