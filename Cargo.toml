@@ -7,7 +7,7 @@ repository = "https://github.com/agemanning/delay_map"
 readme = "./README.md"
 keywords = ["collections", "hashmap", "hashset", "delay", "delayqueue"]
 categories = ["algorithms", "caching", "data-structures"]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [dependencies]
