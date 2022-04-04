@@ -105,11 +105,29 @@ where
         }
     }
 
+    /// Retains only the elements specified by the predicate.
+    ///
+    /// In other words, remove all values `k` such that `f(&k)` returns false.
+    pub fn retain<F: FnMut(&K) -> bool>(&mut self, mut f: F) {
+        let expiration = &mut self.expirations;
+        self.entries.retain(|key, entry| {
+            let result = f(key);
+            if !result {
+                expiration.remove(entry);
+            }
+            result
+        })
+    }
+
     /// Removes all entries from the map.
-    #[allow(dead_code)]
     pub fn clear(&mut self) {
         self.entries.clear();
         self.expirations.clear();
+    }
+
+    /// Returns a vector of referencing all keys in the map.
+    pub fn keys(&self) -> impl Iterator<Item = &K> {
+        self.entries.keys()
     }
 }
 
