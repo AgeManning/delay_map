@@ -125,7 +125,7 @@ where
         self.expirations.clear();
     }
 
-    /// Returns a vector of referencing all keys in the map.
+    /// Returns a vector of referencing all keys in the set.
     pub fn keys(&self) -> impl Iterator<Item = &K> {
         self.entries.keys()
     }
