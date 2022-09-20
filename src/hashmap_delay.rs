@@ -7,7 +7,8 @@ use std::{
 };
 use tokio_util::time::delay_queue::{self, DelayQueue};
 
-/// The default delay for entries, in seconds. This is only used when [`HashMapDelay::insert`] is used to add
+/// The default delay for entries, in seconds. This is only used when [`HashMapDelay::default`] is
+/// used to instantiate the [`HashMapDelay`] and then [`HashMapDelay::insert`] is used to add
 /// entries. Specific times can be specified using [`HashMapDelay::insert_at`].
 const DEFAULT_DELAY: u64 = 30;
 

@@ -1,4 +1,5 @@
-/// The default delay for entries, in seconds. This is only used when `insert()` is used to add
+/// The default delay for entries, in seconds. This is only used when [`HashSetDelay::default`] is
+/// used to instantiate the [`HashSetDelay`] and then [`HasSetDelay::insert`] is used to add
 /// entries.
 const DEFAULT_DELAY: u64 = 30;
 
