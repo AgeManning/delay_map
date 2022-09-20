@@ -111,6 +111,10 @@ where
         self.entries.clear();
         self.expirations.clear();
     }
+
+    pub fn iter(&self) -> impl Iterator<Item = &K> {
+        self.entries.iter().map(|(item, _)| item)
+    }
 }
 
 impl<K> Stream for HashSetDelay<K>
