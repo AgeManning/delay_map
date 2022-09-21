@@ -156,7 +156,7 @@ where
         self.entries.values().map(|entry| &entry.value)
     }
 
-    /// Returns an interator referencing all items in the map.
+    /// Returns an iterator referencing all items in the map.
     pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> {
         self.entries.iter().map(|(k, entry)| (k, &entry.value))
     }
