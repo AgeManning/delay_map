@@ -115,7 +115,7 @@ where
 
     /// Returns an iterator referencing all items in the set.
     pub fn iter(&self) -> impl Iterator<Item = &K> {
-        self.entries.iter().map(|(item, _)| item)
+        self.entries.keys()
     }
 }
 
