@@ -1,4 +1,5 @@
-/// The default delay for entries, in seconds. This is only used when `insert()` is used to add
+/// The default delay for entries, in seconds. This is only used when [`HashSetDelay::default`] is
+/// used to instantiate the [`HashSetDelay`] and then [`HashSetDelay::insert`] is used to add
 /// entries.
 const DEFAULT_DELAY: u64 = 30;
 
@@ -110,6 +111,11 @@ where
     pub fn clear(&mut self) {
         self.entries.clear();
         self.expirations.clear();
+    }
+
+    /// Returns an iterator referencing all items in the set.
+    pub fn iter(&self) -> impl Iterator<Item = &K> {
+        self.entries.keys()
     }
 }
 
