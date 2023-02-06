@@ -15,9 +15,9 @@ const DEFAULT_DELAY: u64 = 30;
 /// A data structure that behaves like a hashmap whose entries expire after a given amount of time.
 /// This implements [`Stream`] and should be polled for expired entries. Duplicate entires reset
 /// the expiration time.
-pub struct HashMapDelay<K, V: Unpin>
+pub struct HashMapDelay<K, V>
 where
-    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
+    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone,
 {
     /// The given entries.
     entries: HashMap<K, MapEntry<V>>,
@@ -35,18 +35,18 @@ struct MapEntry<V> {
     value: V,
 }
 
-impl<K, V: Unpin> Default for HashMapDelay<K, V>
+impl<K, V> Default for HashMapDelay<K, V>
 where
-    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
+    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone,
 {
     fn default() -> Self {
         HashMapDelay::new(Duration::from_secs(DEFAULT_DELAY))
     }
 }
 
-impl<K, V: Unpin> HashMapDelay<K, V>
+impl<K, V> HashMapDelay<K, V>
 where
-    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
+    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone,
 {
     /// Creates a new instance of [`HashMapDelay`]. The `default_entry_timeout` parameter specifies
     /// the default timeout for new entries inserted using the [`HashMapDelay::insert`] function.
@@ -160,15 +160,8 @@ where
     pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> {
         self.entries.iter().map(|(k, entry)| (k, &entry.value))
     }
-}
 
-impl<K, V: Unpin> Stream for HashMapDelay<K, V>
-where
-    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
-{
-    type Item = Result<(K, V), String>;
-
-    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+    pub fn poll_expired(&mut self, cx: &mut Context<'_>) -> Poll<Option<Result<(K, V), String>>> {
         match self.expirations.poll_expired(cx) {
             Poll::Ready(Some(Ok(key))) => match self.entries.remove(key.get_ref()) {
                 Some(entry) => Poll::Ready(Some(Ok((key.into_inner(), entry.value)))),
@@ -180,6 +173,18 @@ where
             Poll::Ready(None) => Poll::Ready(None),
             Poll::Pending => Poll::Pending,
         }
+    }
+}
+
+impl<K, V> Stream for HashMapDelay<K, V>
+where
+    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
+    V: Unpin,
+{
+    type Item = Result<(K, V), String>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        HashMapDelay::poll_expired(self.get_mut(), cx)
     }
 }
 
