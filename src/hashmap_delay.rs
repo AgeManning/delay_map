@@ -161,6 +161,16 @@ where
         self.entries.iter().map(|(k, entry)| (k, &entry.value))
     }
 
+    /// Shrink the capacity of the underlying hash map to fit the current elements.
+    pub fn shrink_to_fit(&mut self) {
+        self.entries.shrink_to_fit();
+    }
+
+    /// Shrink the capacity of the underlying data structures to hold a specific number of elements
+    pub fn shrink_to(&mut self, capacity: usize) {
+        self.entries.shrink_to(capacity);
+    }
+
     pub fn poll_expired(&mut self, cx: &mut Context<'_>) -> Poll<Option<Result<(K, V), String>>> {
         match self.expirations.poll_expired(cx) {
             Poll::Ready(Some(Ok(key))) => match self.entries.remove(key.get_ref()) {
