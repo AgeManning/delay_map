@@ -137,13 +137,10 @@ where
 
     fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         match self.expirations.poll_expired(cx) {
-            Poll::Ready(Some(Ok(key))) => match self.entries.remove(key.get_ref()) {
+            Poll::Ready(Some(key)) => match self.entries.remove(key.get_ref()) {
                 Some(_delay_key) => Poll::Ready(Some(Ok(key.into_inner()))),
                 None => Poll::Ready(Some(Err("Value no longer exists in expirations".into()))),
             },
-            Poll::Ready(Some(Err(e))) => {
-                Poll::Ready(Some(Err(format!("delay queue error: {:?}", e))))
-            }
             Poll::Ready(None) => Poll::Ready(None),
             Poll::Pending => Poll::Pending,
         }
