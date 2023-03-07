@@ -11,9 +11,9 @@ version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-futures = "0.3.19"
-tokio-util = { version = "0.6.9", features = ["time"] }
+futures = "0.3.26"
+tokio-util = { version = "0.7.7", features = ["time"] }
 
 [dev-dependencies]
-tokio = { version = "1.16.0", features = ["time", "rt-multi-thread", "macros"] }
+tokio = { version = "1.26.0", features = ["time", "rt-multi-thread", "macros"] }
 tokio-test = "0.4.2"
