@@ -117,6 +117,16 @@ where
     pub fn iter(&self) -> impl Iterator<Item = &K> {
         self.entries.keys()
     }
+
+    /// Shrink the capacity of the underlying hash map to fit the current elements.
+    pub fn shrink_to_fit(&mut self) {
+        self.entries.shrink_to_fit();
+    }
+
+    /// Shrink the capacity of the underlying data structures to hold a specific number of elements
+    pub fn shrink_to(&mut self, capacity: usize) {
+        self.entries.shrink_to(capacity);
+    }
 }
 
 impl<K> Stream for HashSetDelay<K>
