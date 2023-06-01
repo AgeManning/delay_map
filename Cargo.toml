@@ -15,5 +15,5 @@ futures = "0.3.26"
 tokio-util = { version = "0.7.7", features = ["time"] }
 
 [dev-dependencies]
-tokio = { version = "1.26.0", features = ["time", "rt-multi-thread", "macros"] }
+tokio = { version = "1.28.2", features = ["time", "rt-multi-thread", "macros"] }
 tokio-test = "0.4.2"
