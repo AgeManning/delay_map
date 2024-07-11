@@ -5,6 +5,7 @@ use std::{
     task::{Context, Poll},
     time::Duration,
 };
+pub use tokio::time::Instant;
 use tokio_util::time::delay_queue::{self, DelayQueue};
 
 /// The default delay for entries, in seconds. This is only used when [`HashMapDelay::default`] is
@@ -15,6 +16,7 @@ const DEFAULT_DELAY: u64 = 30;
 /// A data structure that behaves like a hashmap whose entries expire after a given amount of time.
 /// This implements [`Stream`] and should be polled for expired entries. Duplicate entires reset
 /// the expiration time.
+#[derive(Debug)]
 pub struct HashMapDelay<K, V>
 where
     K: std::cmp::Eq + std::hash::Hash + std::clone::Clone,
@@ -28,6 +30,7 @@ where
 }
 
 /// A wrapping around entries that adds the link to the entry's expiration, via a `delay_queue` key.
+#[derive(Debug)]
 struct MapEntry<V> {
     /// The expiration key for the entry.
     key: delay_queue::Key,
@@ -54,6 +57,20 @@ where
         HashMapDelay {
             entries: HashMap::new(),
             expirations: DelayQueue::new(),
+            default_entry_timeout,
+        }
+    }
+
+    /// Creates an empty `HashMapDelay` with at least the specified capacity.
+    ///
+    /// The hash map will be able to hold at least `capacity` elements without
+    /// reallocating. This method is allowed to allocate for more elements than
+    /// `capacity`. If `capacity` is 0, the hash map will not allocate.
+    ///
+    pub fn with_capacity(default_entry_timeout: Duration, capacity: usize) -> Self {
+        HashMapDelay {
+            entries: HashMap::with_capacity(capacity),
+            expirations: DelayQueue::with_capacity(capacity),
             default_entry_timeout,
         }
     }
@@ -171,6 +188,14 @@ where
         self.entries.shrink_to(capacity);
     }
 
+    /// Find the approximate (to the ms) time that a specific entry will expire
+    pub fn deadline(&self, key: &K) -> Option<Instant> {
+        self.entries
+            .get(key)
+            .map(|map_entry| self.expirations.deadline(&map_entry.key))
+    }
+
+    /// Removes expired entries and returns them.
     pub fn poll_expired(&mut self, cx: &mut Context<'_>) -> Poll<Option<Result<(K, V), String>>> {
         match self.expirations.poll_expired(cx) {
             Poll::Ready(Some(key)) => match self.entries.remove(key.get_ref()) {

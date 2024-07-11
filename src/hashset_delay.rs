@@ -10,12 +10,14 @@ use std::{
     task::{Context, Poll},
     time::Duration,
 };
+pub use tokio::time::Instant;
 use tokio_util::time::delay_queue::{self, DelayQueue};
 
 /// A simple hashset object coupled with a `delay_queue` which has entries that expire after a
 /// fixed time.
 ///
 /// A `HashSetDelay` implements `Stream` which removes expired items from the map.
+#[derive(Debug)]
 pub struct HashSetDelay<K>
 where
     K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
@@ -46,6 +48,20 @@ where
         HashSetDelay {
             entries: HashMap::new(),
             expirations: DelayQueue::new(),
+            default_entry_timeout,
+        }
+    }
+
+    /// Creates an empty `HashSetDelay` with at least the specified capacity.
+    ///
+    /// The hash map will be able to hold at least `capacity` elements without
+    /// reallocating. This method is allowed to allocate for more elements than
+    /// `capacity`. If `capacity` is 0, the hash map will not allocate.
+    ///
+    pub fn with_capacity(default_entry_timeout: Duration, capacity: usize) -> Self {
+        HashSetDelay {
+            entries: HashMap::with_capacity(capacity),
+            expirations: DelayQueue::with_capacity(capacity),
             default_entry_timeout,
         }
     }
@@ -127,15 +143,16 @@ where
     pub fn shrink_to(&mut self, capacity: usize) {
         self.entries.shrink_to(capacity);
     }
-}
 
-impl<K> Stream for HashSetDelay<K>
-where
-    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
-{
-    type Item = Result<K, String>;
+    /// Find the approximate (to the ms) time that a specific entry will expire
+    pub fn deadline(&self, key: &K) -> Option<Instant> {
+        self.entries
+            .get(key)
+            .map(|queue_key| self.expirations.deadline(queue_key))
+    }
 
-    fn poll_next(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+    /// Removes expired entries and returns them.
+    pub fn poll_expired(&mut self, cx: &mut Context<'_>) -> Poll<Option<Result<K, String>>> {
         match self.expirations.poll_expired(cx) {
             Poll::Ready(Some(key)) => match self.entries.remove(key.get_ref()) {
                 Some(_delay_key) => Poll::Ready(Some(Ok(key.into_inner()))),
@@ -144,5 +161,16 @@ where
             Poll::Ready(None) => Poll::Ready(None),
             Poll::Pending => Poll::Pending,
         }
+    }
+}
+
+impl<K> Stream for HashSetDelay<K>
+where
+    K: std::cmp::Eq + std::hash::Hash + std::clone::Clone + Unpin,
+{
+    type Item = Result<K, String>;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
+        HashSetDelay::poll_expired(self.get_mut(), cx)
     }
 }

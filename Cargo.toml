@@ -7,13 +7,14 @@ repository = "https://github.com/agemanning/delay_map"
 readme = "./README.md"
 keywords = ["collections", "hashmap", "hashset", "delay", "delayqueue"]
 categories = ["algorithms", "caching", "data-structures"]
-version = "0.3.0"
+version = "0.4.0"
 edition = "2021"
 
 [dependencies]
-futures = "0.3.26"
-tokio-util = { version = "0.7.7", features = ["time"] }
+futures = "0.3.30"
+tokio-util = { version = "0.7.11", features = ["time"] }
+tokio = { version = "1.38", features = ["time"] }
 
 [dev-dependencies]
-tokio = { version = "1.26.0", features = ["time", "rt-multi-thread", "macros"] }
-tokio-test = "0.4.2"
+tokio = { version = "1.38.0", features = ["time", "rt-multi-thread", "macros"] }
+tokio-test = "0.4.4"
