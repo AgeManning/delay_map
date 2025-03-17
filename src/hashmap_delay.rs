@@ -107,6 +107,13 @@ where
         self.entries.get(key).map(|entry| &entry.value)
     }
 
+    /// Gets a mutable reference to an entry if it exists.
+    ///
+    /// Returns None if the entry does not exist.
+    pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
+        self.entries.get_mut(key).map(|entry| &mut entry.value)
+    }
+
     /// Returns true if the key exists, false otherwise.
     pub fn contains_key(&self, key: &K) -> bool {
         self.entries.contains_key(key)

@@ -11,10 +11,10 @@ version = "0.4.0"
 edition = "2021"
 
 [dependencies]
-futures = "0.3.30"
-tokio-util = { version = "0.7.11", features = ["time"] }
-tokio = { version = "1.38", features = ["time"] }
+futures = "0.3.31"
+tokio-util = { version = "0.7.14", features = ["time"] }
+tokio = { version = "1.44", features = ["time"] }
 
 [dev-dependencies]
-tokio = { version = "1.38.0", features = ["time", "rt-multi-thread", "macros"] }
+tokio = { version = "1.44.1", features = ["time", "rt-multi-thread", "macros"] }
 tokio-test = "0.4.4"
